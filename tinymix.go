@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -140,23 +141,39 @@ func (t *Tinymix) GetArg(name string) *TinymixArg {
 
 func (t *Tinymix) Set(controls, values []string, left, right bool) {
 	for i := 0; i < len(controls); i++ {
-		if arg := t.GetArg(controls[i]); arg != nil {
+		m := controls[i]
+		l := "L " + m
+		r := "R " + m
+
+		if arg := t.GetArg(m); arg != nil {
 			if err := arg.SetValue(values[i]); err != nil {
-				fmt.Printf("Failed to set control '%s': %v\n", arg.Name, err)
+				os.Stderr.WriteString(fmt.Sprintf("Failed to set control '%s': %v\n", arg.Name, err))
+			} else {
+				fmt.Printf("Set control '%s': %v\n", arg.Name, values[i])
 			}
+		} else {
+			os.Stderr.WriteString(fmt.Sprintf("Failed to find control '%s'\n", m))
 		}
 		if left {
-			if arg := t.GetArg("L " + controls[i]); arg != nil {
+			if arg := t.GetArg(l); arg != nil {
 				if err := arg.SetValue(values[i]); err != nil {
-					fmt.Printf("Failed to set control '%s': %v\n", arg.Name, err)
+					os.Stderr.WriteString(fmt.Sprintf("Failed to set control '%s': %v\n", arg.Name, err))
+				} else {
+					fmt.Printf("Set control '%s': %v\n", arg.Name, values[i])
 				}
+			} else {
+				os.Stderr.WriteString(fmt.Sprintf("Failed to find control '%s'\n", l))
 			}
 		}
 		if right {
-			if arg := t.GetArg("R " + controls[i]); arg != nil {
+			if arg := t.GetArg(r); arg != nil {
 				if err := arg.SetValue(values[i]); err != nil {
-					fmt.Printf("Failed to set control '%s': %v\n", arg.Name, err)
+					os.Stderr.WriteString(fmt.Sprintf("Failed to set control '%s': %v\n", arg.Name, err))
+				} else {
+					fmt.Printf("Set control '%s': %v\n", arg.Name, values[i])
 				}
+			} else {
+				os.Stderr.WriteString(fmt.Sprintf("Failed to find control '%s'\n", r))
 			}
 		}
 	}
