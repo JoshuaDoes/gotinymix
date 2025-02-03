@@ -250,23 +250,17 @@ func (t *Tinymix) NewTinymixArg(line string) (*TinymixArg, error) {
 func (a *TinymixArg) SetValue(set string) error {
 	switch a.Type {
 	case "BOOL":
-		val := false
+		val := ""
 		switch strings.ToLower(set) {
 		case "1", "t", "true", "y", "yes", "enable", "enabled", "on":
-			val = true
+			val = "1"
 		case "0", "f", "false", "n", "no", "disable", "disabled", "off":
-			val = false
+			val = "0"
 		default:
 			return fmt.Errorf("tinymix: control %d: unknown boolean '%s'", a.Control, set)
 		}
-		if val {
-			if _, err := a.run(a.ControlString(), "1"); err != nil {
-				return fmt.Errorf("tinymix: control %d: failed to set '%s': %v", a.Control, set, err)
-			}
-		} else {
-			if _, err := a.run(a.ControlString(), "0"); err != nil {
-				return fmt.Errorf("tinymix: control %d: failed to set '%s': %v", a.Control, set, err)
-			}
+		if _, err := a.run(a.ControlString(), val); err != nil {
+			return fmt.Errorf("tinymix: control %d: failed to set '%s': %v", a.Control, set, err)
 		}
 	case "ENUM":
 		line, err := a.run(a.ControlString())
@@ -297,7 +291,7 @@ func (a *TinymixArg) SetValue(set string) error {
 	case "INT":
 		_, err := strconv.Atoi(set)
 		if err != nil {
-			return fmt.Errorf("tinymix: control %d: input '%s' is not an INT", a.Control, set)
+			return fmt.Errorf("tinymix: control %d: input '%s' is not an integer", a.Control, set)
 		}
 		if _, err := a.run(a.ControlString(), set); err != nil {
 			return fmt.Errorf("tinymix: control %d: failed to set %s: %v", a.Control, set, err)
