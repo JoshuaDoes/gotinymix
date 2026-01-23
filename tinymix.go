@@ -284,7 +284,7 @@ func (a *TinymixArg) SetValue(set string) error {
 		if err != nil {
 			return fmt.Errorf("tinymix: control %d: failed to read enums: %v", a.Control, err)
 		}
-		kv := strings.Split(line, ":")
+		kv := strings.Split(line, ":\t")
 		key := kv[0]
 		val := kv[1]
 		if a.Name != key {
