@@ -95,7 +95,7 @@ func (t *Tinymix) init() error {
 				stage++
 				continue
 			}
-			kv := strings.Split(line, ": ")
+			kv := strings.Split(line, ":")
 			if len(kv) != 2 {
 				return fmt.Errorf("tinymix: failed to process mixer header: len(kv) == %d", len(kv))
 			}
@@ -149,7 +149,7 @@ func (t *Tinymix) Set(controls, values []string, left, right bool) {
 			if err := arg.SetValue(values[i]); err != nil {
 				os.Stderr.WriteString(fmt.Sprintf("Failed to set control '%s': %v\n", arg.Name, err))
 			} else {
-				fmt.Printf("Set control '%s': %v\n", arg.Name, values[i])
+				fmt.Printf("Set control '%s' (%d): %v\n", arg.Name, arg.Control, values[i])
 			}
 		} else {
 			os.Stderr.WriteString(fmt.Sprintf("Failed to find control '%s'\n", m))
@@ -159,7 +159,7 @@ func (t *Tinymix) Set(controls, values []string, left, right bool) {
 				if err := arg.SetValue(values[i]); err != nil {
 					os.Stderr.WriteString(fmt.Sprintf("Failed to set control '%s': %v\n", arg.Name, err))
 				} else {
-					fmt.Printf("Set control '%s': %v\n", arg.Name, values[i])
+					fmt.Printf("Set control '%s' (%d): %v\n", arg.Name, arg.Control, values[i])
 				}
 			} else {
 				os.Stderr.WriteString(fmt.Sprintf("Failed to find control '%s'\n", l))
@@ -170,7 +170,7 @@ func (t *Tinymix) Set(controls, values []string, left, right bool) {
 				if err := arg.SetValue(values[i]); err != nil {
 					os.Stderr.WriteString(fmt.Sprintf("Failed to set control '%s': %v\n", arg.Name, err))
 				} else {
-					fmt.Printf("Set control '%s': %v\n", arg.Name, values[i])
+					fmt.Printf("Set control '%s' (%d): %v\n", arg.Name, arg.Control, values[i])
 				}
 			} else {
 				os.Stderr.WriteString(fmt.Sprintf("Failed to find control '%s'\n", r))
@@ -280,17 +280,17 @@ func (a *TinymixArg) SetValue(set string) error {
 			return fmt.Errorf("tinymix: control %d: failed to set '%s': %v", a.Control, set, err)
 		}
 	case "ENUM":
-		line, err := a.run(a.ControlString())
+		line, err := a.run("-t", a.ControlString())
 		if err != nil {
 			return fmt.Errorf("tinymix: control %d: failed to read enums: %v", a.Control, err)
 		}
-		kv := strings.Split(line, ": ")
+		kv := strings.Split(line, ":")
 		key := kv[0]
 		val := kv[1]
 		if a.Name != key {
 			return fmt.Errorf("tinymix: control %d: expected name '%s' but got '%s'", a.Control, a.Name, key)
 		}
-		enums := strings.Split(val, " ")
+		enums := strings.Split(val, "\t")
 		enum := -1
 		for i := 0; i < len(enums); i++ {
 			test := strings.TrimPrefix(enums[i], ">")
